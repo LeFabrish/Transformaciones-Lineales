@@ -4,7 +4,7 @@
 PlayerSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 28
-  productGUID: a7afea56724344549ba4c834cd1a7191
+  productGUID: fb8b3655d841cbc43bc5d9daf2e52d0b
   AndroidProfiler: 0
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
@@ -13,7 +13,7 @@ PlayerSettings:
   useOnDemandResources: 0
   accelerometerFrequency: 60
   companyName: DefaultCompany
-  productName: Transformaciones lineales
+  productName: "Transformaci\xF3nLinealesv1"
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
   m_SplashScreenBackgroundColor: {r: 0.13725491, g: 0.12156863, b: 0.1254902, a: 1}
@@ -602,14 +602,14 @@ PlayerSettings:
   editorAssembliesCompatibilityLevel: 1
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
-  metroPackageName: Transformaciones lineales
+  metroPackageName: "Transformaci\xF3nLinealesv1"
   metroPackageVersion: 
   metroCertificatePath: 
   metroCertificatePassword: 
   metroCertificateSubject: 
   metroCertificateIssuer: 
   metroCertificateNotAfter: 0000000000000000
-  metroApplicationDescription: Transformaciones lineales
+  metroApplicationDescription: "Transformaci\xF3nLinealesv1"
   wsaImages: {}
   metroTileShortName: 
   metroTileShowName: 0
@@ -681,10 +681,10 @@ PlayerSettings:
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
   enableDirectStorage: 0
-  cloudProjectId: 752cff24-9d45-483b-8124-6355b6810b82
+  cloudProjectId: 1c92e416-347e-4eea-9c24-e292554e8686
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Transformaciones lineales
+  projectName: "Transformaci\xF3nLinealesv1"
   organizationId: cacerescamperonfabricio
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0

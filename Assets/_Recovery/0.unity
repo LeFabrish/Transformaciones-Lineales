@@ -338,19 +338,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 56935167}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 426893213}
-        m_TargetAssemblyTypeName: ControlTransformaciones, Assembly-CSharp
-        m_MethodName: AplicarFigura
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &56935167
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2282,38 +2270,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 291479050}
   m_CullTransparentMesh: 1
---- !u!1 &310540799
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 310540800}
-  m_Layer: 0
-  m_Name: ControladorApp
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &310540800
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 310540799}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 529.79236, y: 317.0923, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children:
-  - {fileID: 426893212}
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &340641438
 GameObject:
   m_ObjectHideFlags: 0
@@ -3123,63 +3079,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 422003316}
   m_CullTransparentMesh: 1
---- !u!1 &426893211
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 426893212}
-  - component: {fileID: 426893213}
-  m_Layer: 0
-  m_Name: ControlTransformaciones
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &426893212
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 426893211}
-  serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 24.518677, y: -28.593567, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 310540800}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &426893213
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 426893211}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 34ffb170325c4464499edb7b2c3deb01, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::ControlTransformaciones
-  puntosOriginales: []
-  puntosTransformados: []
-  lineaOriginal: {fileID: 688007099}
-  lineaTransformada: {fileID: 688007099}
-  inputP1X: {fileID: 725916247}
-  inputP1Y: {fileID: 508070038}
-  inputP2X: {fileID: 210996477}
-  inputP2Y: {fileID: 922417805}
-  inputP3X: {fileID: 567322100}
-  inputP3Y: {fileID: 395815200}
-  inputP4X: {fileID: 1364194306}
-  inputP4Y: {fileID: 1895780749}
-  inputAnguloRotacion: {fileID: 1614043298}
 --- !u!1 &467263559
 GameObject:
   m_ObjectHideFlags: 0
@@ -7671,19 +7570,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1275522239}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 426893213}
-        m_TargetAssemblyTypeName: ControlTransformaciones, Assembly-CSharp
-        m_MethodName: RotarFigura
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1275522239
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12043,4 +11930,3 @@ SceneRoots:
   - {fileID: 205103867}
   - {fileID: 1534705112}
   - {fileID: 688007100}
-  - {fileID: 310540800}
