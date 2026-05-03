@@ -21,11 +21,7 @@ public class ControlTransformaciones : MonoBehaviour
 
     [Header("Inputs de Transformación")]
     public TMP_InputField inputAnguloRotacion;
-    // Agrega más según necesites (escalaX, escalaY, etc.)
-
     public TMP_InputField inputFactorX; public TMP_InputField inputFactorY;
-
-    // Agrego las variables de m y c de la ecuacion: y = mx + c
     public TMP_InputField inputM; public TMP_InputField inputC;
 
     // Matrices de transformación 4 Componentes de una matriz 2 x 2
@@ -34,10 +30,14 @@ public class ControlTransformaciones : MonoBehaviour
     // Animacion
     public float velocidadAnimacion = 2.0f;
 
+    // Referencia del plano cartesiano 
+    [Header("Referencia del Plano Cartesiano")]
+    public Transform centroDelPlano;
+    public float escalaPlanoY = 0.818f; // Multiplicador para convertir unidades de tu sistema a unidades de Unity (ajusta según sea necesario)
+    public float escalaPlanoX = 1.0f; // Multiplicador para convertir unidades de tu sistema a unidades de Unity (ajusta según sea necesario)
+    public float numeroCualquiera = 0.0f; // porq ue si xd
+
     // --- 3. FUNCIONES PARA LOS BOTONES (NUEVO) ---
-
-
-
 
     // Esta función se conectará al botón "APLICAR FIGURA"
     public void AplicarFigura()
@@ -63,8 +63,9 @@ public class ControlTransformaciones : MonoBehaviour
             puntosOriginales.Add(new Vector2(x4, y4));
         }
 
-        Debug.Log("Figura aplicada. Total de puntos: " + puntosOriginales.Count);
+        Debug.Log("Figura aplicada. Total de puntos: " + puntosOriginales.Count + " Numero Random :" + numeroCualquiera);
         // Aquí llamarías a una función para dibujar usando el LineRenderer
+        DibujarFiguraOriginal();
     }
 
     // Esta función se conectará al botón "ROTAR"
@@ -108,4 +109,37 @@ public class ControlTransformaciones : MonoBehaviour
             Debug.LogWarning("Por favor ingresa valores válidos para m y c.");
         }
     }
+
+    // --- 4. APARTADO VISUAL (REDENRIZADO) ---
+
+    // Función para dibujar la figura original en el plano cartesiano dado.
+    public void DibujarFiguraOriginal()
+    {
+        // Validamos los puntos para al menos formar una línea (osea P's >= 2)
+        if(puntosOriginales.Count < 2)
+        {
+            Debug.LogWarning("Necesitas al menos 2 puntos para dibujar una figura.");
+            return;
+        }
+        // Le decimos al LineRenderer cuántos puntos va a dibujar
+        // Sumamos +1 porque necesitamos al punto de inicio para "cerrar" la figura.
+        lineaOriginal.positionCount = puntosOriginales.Count + 1;
+
+        // Como Unity trabaja en 3D, convertimos nuestros Vector2 a Vector3 (con z=0)
+        for (int i = 0; i < puntosOriginales.Count; i++)
+        {
+            // Calculamos la posicion sumando el centro del panel visual
+            // Y multiplicamos por la escala para que se vea bien en Unity y calce con la cuadrícula del plano cartesiano
+            float posX = centroDelPlano.position.x + puntosOriginales[i].x * escalaPlanoX;
+            float posY = centroDelPlano.position.y + puntosOriginales[i].y * escalaPlanoY;
+
+            // Z = -1 para que la linea se dibuje por delante de la imagen de fondo
+            lineaOriginal.SetPosition(i, new Vector3(posX, posY, -1f));
+        }
+        // Cerramos la figura conectando el último punto con el primero
+        float cierreX = centroDelPlano.position.x + puntosOriginales[0].x * escalaPlanoX;
+        float cierreY = centroDelPlano.position.y + puntosOriginales[0].y * escalaPlanoY;
+        lineaOriginal.SetPosition(puntosOriginales.Count, new Vector3(cierreX, cierreY, -1f));
+    }
+
 }
