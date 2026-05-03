@@ -35,8 +35,20 @@ public class ControlTransformaciones : MonoBehaviour
             puntosOriginales.Add(new Vector2(x1, y1));
         }
         // Puedes repetir este bloque para P2, P3 y P4...
+        if (float.TryParse(inputP2X.text, out float x2) && float.TryParse(inputP2Y.text,out float y2))
+        {
+            puntosOriginales.Add(new Vector2(x2, y2));
+        }
+        if (float.TryParse(inputP3X.text, out float x3) && float.TryParse(inputP3Y.text, out float y3))
+        {
+            puntosOriginales.Add(new Vector2(x3, y3));
+        } 
+        if (float.TryParse(inputP4X.text, out float x4) && float.TryParse(inputP4Y.text, out float y4))
+        {
+            puntosOriginales.Add(new Vector2(x4, y4));
+        }
 
-        Debug.Log("Figura aplicada. Total de puntos: " + puntosOriginales.Count);
+        Debug.Log("El programa funciona. Total de puntos: " + puntosOriginales.Count);
         // Aquí llamarías a una función para dibujar usando el LineRenderer
     }
 
@@ -45,12 +57,12 @@ public class ControlTransformaciones : MonoBehaviour
     {
         if (float.TryParse(inputAnguloRotacion.text, out float angulo))
         {
-            Debug.Log("Rotando la figura " + angulo + " grados.");
+            Debug.Log("Rotando la figura " + angulo + " grados centigrados.");
             // Aquí irá tu lógica de matrices de rotación
         }
         else
         {
-            Debug.LogWarning("Por favor ingresa un ángulo válido.");
+            Debug.LogWarning("Por favor ingresa un ángulo válido pe.");
         }
     }
 }
