@@ -3001,7 +3001,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -1, y: -194}
+  m_AnchoredPosition: {x: -1, y: -194.00003}
   m_SizeDelta: {x: -47.6, y: -916.7371}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &420375427
@@ -4890,7 +4890,7 @@ LineRenderer:
   - {x: 0, y: 0, z: 1}
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 1
+    widthMultiplier: 0.1
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -5984,7 +5984,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -349, y: -55}
+  m_AnchoredPosition: {x: -349, y: -55.00003}
   m_SizeDelta: {x: -848.8844, y: -193.2726}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &906668862
