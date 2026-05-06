@@ -3261,10 +3261,7 @@ MonoBehaviour:
   inputFactorY: {fileID: 340641440}
   inputM: {fileID: 2023298998}
   inputC: {fileID: 151337247}
-  velocidadAnimacion: 2
   centroDelPlano: {fileID: 625469363}
-  escalaPlanoY: 0.818
-  escalaPlanoX: 1
   numeroCualquiera: 5
 --- !u!1 &467263559
 GameObject:
@@ -4896,7 +4893,7 @@ LineRenderer:
       m_Curve:
       - serializedVersion: 3
         time: 0
-        value: 0.10429382
+        value: 1
         inSlope: 0
         outSlope: 0
         tangentMode: 0
@@ -4908,9 +4905,9 @@ LineRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0, g: 0.059925437, b: 1, a: 1}
-      key1: {r: 1, g: 1, b: 1, a: 1}
-      key2: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 1, g: 0.12657726, b: 0, a: 1}
+      key1: {r: 1, g: 0.1419906, b: 0.01764706, a: 1}
+      key2: {r: 1, g: 1, b: 1, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
       key5: {r: 0, g: 0, b: 0, a: 0}
@@ -4918,7 +4915,7 @@ LineRenderer:
       key7: {r: 0, g: 0, b: 0, a: 0}
       ctime0: 0
       ctime1: 65535
-      ctime2: 0
+      ctime2: 65535
       ctime3: 0
       ctime4: 0
       ctime5: 0
@@ -6513,7 +6510,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.99993896, y: -408.59592}
+  m_AnchoredPosition: {x: -0.99993896, y: -408.59598}
   m_SizeDelta: {x: -47.6, y: -900.4706}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &935357337

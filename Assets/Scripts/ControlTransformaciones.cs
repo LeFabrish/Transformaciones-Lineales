@@ -1,8 +1,8 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using TMPro;
-using Unity.VisualScripting; // Necesario para leer las cajas de texto modernas de Unity
+using TMPro; // Necesario para leer las cajas de texto modernas de Unity
+using Unity.VisualScripting; 
 
 public class ControlTransformaciones : MonoBehaviour
 {
@@ -23,8 +23,7 @@ public class ControlTransformaciones : MonoBehaviour
     public TMP_InputField inputFactorX; public TMP_InputField inputFactorY;
     public TMP_InputField inputM; public TMP_InputField inputC;
 
-    // Debido que necesitamos una matriz de transformación general para cada tipo de transformación.
-    private float matA, matB, matC, matD; 
+
     public const float velocidadAnimacion = 2.0f;
 
     [Header("Referencia del Plano Cartesiano")]
@@ -120,7 +119,6 @@ public class ControlTransformaciones : MonoBehaviour
         }
     }
 
-    // Funcion para reflejar
     public void ReflejarFigura()
     {
         if(puntosOriginales.Count < 2)
@@ -158,6 +156,8 @@ public class ControlTransformaciones : MonoBehaviour
             // -- Completar codigo ---
         }
     }
+
+    // Funciones guiadas por IA para dibujar las figuras en el plano cartesiano de Unity usando LineRenderer
     public void DibujarFiguraOriginal()
     {
         if(puntosOriginales.Count < 2) // Validamos cant de puntos
@@ -213,6 +213,20 @@ public class ControlTransformaciones : MonoBehaviour
         float cierreY = centroDelPlano.position.y + puntosTransformados[0].y * escalaPlanoY;
         lineaTransformada.SetPosition(puntosTransformados.Count, new Vector3(cierreX, cierreY, -2f));
 
+    }
+
+    public void LimpiarFigura()
+    {
+        puntosOriginales.Clear();
+        puntosTransformados.Clear();
+        lineaOriginal.positionCount = 0;
+        lineaTransformada.positionCount = 0;
+    }
+
+    public void ReiniciarAFiguraOriginal()
+    {
+        puntosTransformados.Clear();
+        lineaTransformada.positionCount = 0;
     }
 
 }
