@@ -23,7 +23,7 @@ public class ControlTransformaciones : MonoBehaviour
 
     [Header("Inputs de Transformación")]
     public TMP_InputField inputAnguloRotacion;
-    public TMP_InputField inputFactorX; public TMP_InputField inputFactorY;
+    public TMP_InputField inputFactor;
     public TMP_InputField inputPuntoHomoteciaX; public TMP_InputField inputPuntoHomoteciaY;
     public TMP_InputField inputM; public TMP_InputField inputC;
 
@@ -79,6 +79,7 @@ public class ControlTransformaciones : MonoBehaviour
     public void AplicarFigura()
     {
         puntosOriginales.Clear();
+        LimpiarLineasProyeccion();
         LeerPunto(inputP1X, inputP1Y);
         LeerPunto(inputP2X, inputP2Y);
         LeerPunto(inputP3X, inputP3Y);
@@ -101,7 +102,7 @@ public class ControlTransformaciones : MonoBehaviour
             Debug.LogWarning("[Transformaciones] Ángulo de rotación inválido.");
             return;
         }
-
+        LimpiarLineasProyeccion();
         puntosTransformados.Clear();
         float radianes = angulo * Mathf.Deg2Rad;
         float cosA = Mathf.Cos(radianes);
@@ -123,10 +124,9 @@ public class ControlTransformaciones : MonoBehaviour
     {
         if (!ValidarPuntosMinimos()) return;
 
-        if (!float.TryParse(inputFactorX.text, out float fX) ||
-            !float.TryParse(inputFactorY.text, out float fY))
+        if (!float.TryParse(inputFactor.text, out float f))
         {
-            Debug.LogWarning("[Transformaciones] Factores de escala inválidos.");
+            Debug.LogWarning("[Transformaciones] Factor de escala inválido.");
             return;
         }
 
@@ -138,12 +138,12 @@ public class ControlTransformaciones : MonoBehaviour
         puntosTransformados.Clear();
         foreach (Vector2 p in puntosOriginales)
         {
-            float xNuevo = (p.x - hx) * fX + hx;
-            float yNuevo = (p.y - hy) * fY + hy;
+            float xNuevo = (p.x - hx) * f + hx;
+            float yNuevo = (p.y - hy) * f + hy;
             puntosTransformados.Add(new Vector2(xNuevo, yNuevo));
         }
 
-        Debug.Log($"[Transformaciones] Escalando ({fX}x, {fY}y) desde ({hx},{hy}).");
+        Debug.Log($"[Transformaciones] Escalando ({f}) desde ({hx},{hy}).");
         DibujarLineasHomotecia(new Vector2(hx, hy));
         IniciarAnimacion();
     }
@@ -152,13 +152,14 @@ public class ControlTransformaciones : MonoBehaviour
     {
         if (!ValidarPuntosMinimos()) return;
 
-        if (!float.TryParse(inputM.text, out float m) ||
-            !float.TryParse(inputC.text, out float c))
+        if (!float.TryParse(inputM.text, out float m))
         {
             Debug.LogWarning("[Transformaciones] Valores de m o c inválidos.");
             return;
         }
-
+        float c = 0f;
+        if (!float.TryParse(inputC.text, out c)) {}
+        LimpiarLineasProyeccion();
         puntosTransformados.Clear();
         float m2 = m * m;
         float divisor = 1f + m2;
