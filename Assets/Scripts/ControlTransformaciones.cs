@@ -1,14 +1,13 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
-using TMPro; // Necesario para leer las cajas de texto modernas de Unity
-using Unity.VisualScripting; 
+using TMPro;
 
 public class ControlTransformaciones : MonoBehaviour
 {
-    // Variables 
     public List<Vector2> puntosOriginales = new List<Vector2>();
     public List<Vector2> puntosTransformados = new List<Vector2>();
+
     public LineRenderer lineaOriginal;
     public LineRenderer lineaTransformada;
 
@@ -17,206 +16,391 @@ public class ControlTransformaciones : MonoBehaviour
     public TMP_InputField inputP2X; public TMP_InputField inputP2Y;
     public TMP_InputField inputP3X; public TMP_InputField inputP3Y;
     public TMP_InputField inputP4X; public TMP_InputField inputP4Y;
+    public TMP_InputField inputP5X; public TMP_InputField inputP5Y;
+    public TMP_InputField inputP6X; public TMP_InputField inputP6Y;
+    public TMP_InputField inputP7X; public TMP_InputField inputP7Y;
+    public TMP_InputField inputP8X; public TMP_InputField inputP8Y;
 
     [Header("Inputs de Transformación")]
     public TMP_InputField inputAnguloRotacion;
     public TMP_InputField inputFactorX; public TMP_InputField inputFactorY;
+    public TMP_InputField inputPuntoHomoteciaX; public TMP_InputField inputPuntoHomoteciaY;
     public TMP_InputField inputM; public TMP_InputField inputC;
 
+    // =====================================================================
+    // ANIMACIÓN
+    // =====================================================================
+    [Header("Configuración de Animación")]
+    [Tooltip("Duración total de la animación en segundos. Ej: 1.5")]
+    public float duracionAnimacion = 1.5f;
 
-    public const float velocidadAnimacion = 2.0f;
+    [Tooltip("Tipo de easing para la animación")]
+    public TipoEasing tipoEasing = TipoEasing.SmoothStep;
+
+    /// <summary>Referencia a la coroutine activa para poder cancelarla si el usuario lanza otra acción.</summary>
+    private Coroutine _coroutineAnimacion;
+
+    /// <summary>Flag para saber si hay una animación en curso (útil para deshabilitar botones desde fuera).</summary>
+    public bool EstaAnimando { get; private set; } = false;
 
     [Header("Referencia del Plano Cartesiano")]
     public Transform centroDelPlano;
-    public const float escalaPlanoY = 0.818f; 
+    public const float escalaPlanoY = 0.818f;
     public const float escalaPlanoX = 1.0f;
-    public float numeroCualquiera = 0.0f;
 
-    // --- BONTONES ---
+    [Header("Líneas de Proyección (Homotecia)")]
+    public GameObject prefabLineaProyeccion;
+    private List<GameObject> _lineasProyeccionInstanciadas = new List<GameObject>();
+
+    [Header("Configuración Visual")]
+    [Tooltip("Extensión de las líneas de proyección fuera del plano. Ej: 20")]
+    public float factorExtensionLineasProyeccion = 20f;
+
+
+    // =====================================================================
+    // TIPOS AUXILIARES
+    // =====================================================================
+
+    /// <summary>Opciones de easing para controlar la curva de velocidad de la animación.</summary>
+    public enum TipoEasing
+    {
+        Lineal,      // Velocidad constante
+        SmoothStep,  // Suave al inicio y al final (recomendado)
+        EaseIn,      // Arranca lento, termina rápido
+        EaseOut,     // Arranca rápido, termina lento
+        Elastico     // Pequeño rebote al llegar al destino
+    }
+
+
+    // =====================================================================
+    // BOTONES — ACCIONES PRINCIPALES
+    // =====================================================================
+
     public void AplicarFigura()
     {
         puntosOriginales.Clear();
-        // Guardamos los puntos 
-        if (float.TryParse(inputP1X.text, out float x1) && float.TryParse(inputP1Y.text, out float y1))
-        {
-            puntosOriginales.Add(new Vector2(x1, y1));
-        }
-        if (float.TryParse(inputP2X.text, out float x2) && float.TryParse(inputP2Y.text, out float y2))
-        {
-            puntosOriginales.Add(new Vector2(x2, y2));
-        }
-        if (float.TryParse(inputP3X.text, out float x3) && float.TryParse(inputP3Y.text, out float y3))
-        {
-            puntosOriginales.Add(new Vector2(x3, y3));
-        }
-        if (float.TryParse(inputP4X.text, out float x4) && float.TryParse(inputP4Y.text, out float y4))
-        {
-            puntosOriginales.Add(new Vector2(x4, y4));
-        }
+        LeerPunto(inputP1X, inputP1Y);
+        LeerPunto(inputP2X, inputP2Y);
+        LeerPunto(inputP3X, inputP3Y);
+        LeerPunto(inputP4X, inputP4Y);
+        LeerPunto(inputP5X, inputP5Y);
+        LeerPunto(inputP6X, inputP6Y);
+        LeerPunto(inputP7X, inputP7Y);
+        LeerPunto(inputP8X, inputP8Y);
 
         DibujarFiguraOriginal();
-        Debug.Log("Figura aplicada. Total de puntos: " + puntosOriginales.Count + " Numero Random :" + numeroCualquiera);
+        Debug.Log($"[Transformaciones] Figura aplicada con {puntosOriginales.Count} puntos.");
     }
+
     public void RotarFigura()
     {
-        if(puntosOriginales.Count < 2)
-        {
+        if (!ValidarPuntosMinimos()) return;
 
-            Debug.Log("Porfavor ingrese al menos dos puntos para rotar la figura ");
+        if (!float.TryParse(inputAnguloRotacion.text, out float angulo))
+        {
+            Debug.LogWarning("[Transformaciones] Ángulo de rotación inválido.");
             return;
         }
-        if (float.TryParse(inputAnguloRotacion.text, out float angulo))
+
+        puntosTransformados.Clear();
+        float radianes = angulo * Mathf.Deg2Rad;
+        float cosA = Mathf.Cos(radianes);
+        float sinA = Mathf.Sin(radianes);
+
+        foreach (Vector2 p in puntosOriginales)
         {
-            Debug.Log("Rotando la figura " + angulo + " grados.");
-            puntosTransformados.Clear();
-            float radianes = angulo * Mathf.Deg2Rad;
-            float cosA = Mathf.Cos(radianes);
-            float senA = Mathf.Sin(radianes);
-
-            for(int i = 0; i < puntosOriginales.Count; i++)
-            {
-                float xOriginal = puntosOriginales[i].x;
-                float yOriginal = puntosOriginales[i].y;
-
-                float xNuevo = xOriginal * cosA - yOriginal * senA;
-                float yNuevo = xOriginal * senA + yOriginal * cosA; 
-                puntosTransformados.Add(new Vector2(xNuevo, yNuevo));
-            }
-
-            DibujarFiguraTransformada();
+            float xNuevo = p.x * cosA - p.y * sinA;
+            float yNuevo = p.x * sinA + p.y * cosA;
+            puntosTransformados.Add(new Vector2(xNuevo, yNuevo));
         }
-        else
-        {
-            Debug.LogWarning("Por favor ingresa un ángulo válido.");
-        }
+
+        Debug.Log($"[Transformaciones] Rotando {angulo}°.");
+        IniciarAnimacion();
     }
+
+    /// <summary>Calcula la homotecia (escalado) y lanza la animación.</summary>
     public void EscalarFigura()
     {
-        if (puntosOriginales.Count <2 )
+        if (!ValidarPuntosMinimos()) return;
+
+        if (!float.TryParse(inputFactorX.text, out float fX) ||
+            !float.TryParse(inputFactorY.text, out float fY))
         {
-            Debug.LogWarning("Por favor ingresa al menos un punto para escalar la figura.");
+            Debug.LogWarning("[Transformaciones] Factores de escala inválidos.");
             return;
         }
-        if (float.TryParse(inputFactorX.text, out float factorX) && float.TryParse(inputFactorY.text, out float factorY))
-        {
-            Debug.Log("Escalando la figura " + factorX + "x, " + factorY + "y.");
-            puntosTransformados.Clear();
 
-            for (int i = 0; i < puntosOriginales.Count; i++)
-            {
-                float xNuevo = puntosOriginales[i].x * factorX;
-                float yNuevo = puntosOriginales[i].y * factorY;
-                puntosTransformados.Add(new Vector2(xNuevo, yNuevo));
-            }
-            DibujarFiguraTransformada();
+        // Centro de homotecia (por defecto el origen)
+        float hx = 0f, hy = 0f;
+        if (!string.IsNullOrEmpty(inputPuntoHomoteciaX.text)) float.TryParse(inputPuntoHomoteciaX.text, out hx);
+        if (!string.IsNullOrEmpty(inputPuntoHomoteciaY.text)) float.TryParse(inputPuntoHomoteciaY.text, out hy);
 
-        }
-        else
+        puntosTransformados.Clear();
+        foreach (Vector2 p in puntosOriginales)
         {
-            Debug.LogWarning("Por favor ingresa factores de escala válidos.");
-            // Mostrar ventana de error o mensaje al usuario
-            // -- Completar codigo ---
+            float xNuevo = (p.x - hx) * fX + hx;
+            float yNuevo = (p.y - hy) * fY + hy;
+            puntosTransformados.Add(new Vector2(xNuevo, yNuevo));
         }
+
+        Debug.Log($"[Transformaciones] Escalando ({fX}x, {fY}y) desde ({hx},{hy}).");
+        DibujarLineasHomotecia(new Vector2(hx, hy));
+        IniciarAnimacion();
     }
 
     public void ReflejarFigura()
     {
-        if(puntosOriginales.Count < 2)
+        if (!ValidarPuntosMinimos()) return;
+
+        if (!float.TryParse(inputM.text, out float m) ||
+            !float.TryParse(inputC.text, out float c))
         {
-            Debug.LogWarning("Por favor ingresa al menos dos puntos para reflejar la figura.");
+            Debug.LogWarning("[Transformaciones] Valores de m o c inválidos.");
             return;
         }
-        if (float.TryParse(inputM.text, out float m) && float.TryParse(inputC.text, out float c))
+
+        puntosTransformados.Clear();
+        float m2 = m * m;
+        float divisor = 1f + m2;
+        float dos_m = 2f * m;
+
+        foreach (Vector2 p in puntosOriginales)
         {
-            Debug.Log("Reflejando la figura sobre la línea y = " + m + "x + " + c);
-
-            puntosTransformados.Clear();
-            float mCuadrado = m * m;
-            float divisor = (1f + mCuadrado);
-            float Dosm = 2f * m;
-            float mCuadradoMenos1 = mCuadrado - 1f;
-            float unoMenosMCuadrado = 1f - mCuadrado;
-
-            for(int i = 0; i < puntosOriginales.Count; i++)
-            {
-                float x = puntosOriginales[i].x;
-                float y= puntosOriginales[i].y;
-
-                float xNuevo = ((unoMenosMCuadrado * x) + (Dosm * (y - c))) / divisor; 
-                float yNuevo = ((Dosm * x)+ (mCuadradoMenos1 * y) + (2f*c))/divisor;
-
-                puntosTransformados.Add(new Vector2(xNuevo, yNuevo));
-            }
-            DibujarFiguraTransformada();
+            // Fórmula de reflexión sobre y = mx + c
+            float xNuevo = ((1f - m2) * p.x + dos_m * (p.y - c)) / divisor;
+            float yNuevo = (dos_m * p.x + (m2 - 1f) * p.y + 2f * m * c) / divisor;
+            puntosTransformados.Add(new Vector2(xNuevo, yNuevo));
         }
-        else
-        {
-            Debug.LogWarning("Por favor ingresa valores válidos para m y c.");
-            // Mostrar ventana de error o mensaje al usuario
-            // -- Completar codigo ---
-        }
-    }
 
-    // Funciones guiadas por IA para dibujar las figuras en el plano cartesiano de Unity usando LineRenderer
-    public void DibujarFiguraOriginal()
-    {
-        if(puntosOriginales.Count < 2) // Validamos cant de puntos
-        {
-            Debug.LogWarning("Necesitas al menos 2 puntos para dibujar una figura.");
-            return;
-        }
-        // Le decimos al LineRenderer cuántos puntos va a dibujar
-        // Sumamos +1 porque necesitamos al punto de inicio para "cerrar" la figura.
-        lineaOriginal.positionCount = puntosOriginales.Count + 1;
-
-        // Como Unity trabaja en 3D, convertimos nuestros Vector2 a Vector3 (con z=0)
-        for (int i = 0; i < puntosOriginales.Count; i++)
-        {
-            // Calculamos la posicion sumando el centro del panel visual
-            // Y multiplicamos por la escala para que se vea bien en Unity y calce con la cuadrícula del plano cartesiano
-            float posX = centroDelPlano.position.x + puntosOriginales[i].x * escalaPlanoX;
-            float posY = centroDelPlano.position.y + puntosOriginales[i].y * escalaPlanoY;
-
-            // Z = -1 para que la linea se dibuje por delante de la imagen de fondo
-            lineaOriginal.SetPosition(i, new Vector3(posX, posY, -1f));
-        }
-        // Cerramos la figura conectando el último punto con el primero
-        float cierreX = centroDelPlano.position.x + puntosOriginales[0].x * escalaPlanoX;
-        float cierreY = centroDelPlano.position.y + puntosOriginales[0].y * escalaPlanoY;
-        lineaOriginal.SetPosition(puntosOriginales.Count, new Vector3(cierreX, cierreY, -1f));
+        Debug.Log($"[Transformaciones] Reflejando sobre y = {m}x + {c}.");
+        IniciarAnimacion();
     }
     
-    public void DibujarFiguraTransformada()
+    // Uso de IA para las funciones de animación y transformación
+
+    // =====================================================================
+    // SISTEMA DE ANIMACIÓN 
+    // =====================================================================
+
+    public void AnimarTransformacion()
     {
-        if (puntosTransformados.Count < 2) // Validamos cant de puntos
+        if (puntosOriginales.Count < 2 || puntosTransformados.Count < 2)
         {
-            Debug.LogWarning("Necesitas al menos 2 puntos para dibujar una figura.");
+            Debug.LogWarning("[Animación] Primero aplica la figura y luego una transformación.");
             return;
         }
-        // Le decimos al LineRenderer cuántos puntos va a dibujar
-        // Sumamos +1 porque necesitamos al punto de inicio para "cerrar" la figura.
-        lineaTransformada.positionCount = puntosTransformados.Count + 1;
-
-        // Como Unity trabaja en 3D, convertimos nuestros Vector2 a Vector3 (con z=0)
-        for (int i = 0; i < puntosTransformados.Count; i++)
+        IniciarAnimacion();
+    }
+    private void IniciarAnimacion()
+    {
+        // Si ya hay una animación corriendo, la cancelamos limpiamente
+        if (_coroutineAnimacion != null)
         {
-            // Calculamos la posicion sumando el centro del panel visual
-            // Y multiplicamos por la escala para que se vea bien en Unity y calce con la cuadrícula del plano cartesiano
-            float posX = centroDelPlano.position.x + puntosTransformados[i].x * escalaPlanoX;
-            float posY = centroDelPlano.position.y + puntosTransformados[i].y * escalaPlanoY;
+            StopCoroutine(_coroutineAnimacion);
+        }
+        _coroutineAnimacion = StartCoroutine(CoroutineAnimarTransformacion());
+    }
 
-            // Z = -1 para que la linea se dibuje por delante de la imagen de fondo
+    private IEnumerator CoroutineAnimarTransformacion()
+    {
+        EstaAnimando = true;
+        float tiempoTranscurrido = 0f;
+
+        // Inicializamos la línea transformada con la forma original
+        lineaTransformada.positionCount = puntosOriginales.Count + 1;
+
+        while (tiempoTranscurrido < duracionAnimacion)
+        {
+            // Time.deltaTime es el tiempo entre el frame anterior y este.
+            // Sumándolo acumulamos el tiempo total transcurrido.
+            tiempoTranscurrido += Time.deltaTime;
+
+            // t va de 0.0 (inicio) a 1.0 (fin)
+            float t = Mathf.Clamp01(tiempoTranscurrido / duracionAnimacion);
+
+            // Aplicamos la curva de easing elegida
+            float tEased = AplicarEasing(t);
+
+            // Actualizamos el LineRenderer interpolando cada punto
+            ActualizarLineaInterpolada(tEased);
+
+            // yield return null = "pausa aquí, continúa en el siguiente frame"
+            // Esto es lo que hace que la animación sea suave y no bloquee el juego
+            yield return null;
+        }
+
+        // Nos aseguramos de que al final la figura quede exactamente en los puntos transformados
+        ActualizarLineaInterpolada(1f);
+
+        EstaAnimando = false;
+        _coroutineAnimacion = null;
+        Debug.Log("[Animación] Transformación completada.");
+    }
+
+    /// <summary>
+    /// Actualiza las posiciones del LineRenderer interpolando entre
+    /// los puntos originales y los transformados según el valor t (0 a 1).
+    /// </summary>
+    private void ActualizarLineaInterpolada(float t)
+    {
+        int cantidad = puntosOriginales.Count;
+
+        for (int i = 0; i < cantidad; i++)
+        {
+            // Lerp = Linear intERPolation: mezcla dos vectores según t
+            // t=0 → punto original, t=1 → punto transformado, t=0.5 → justo en el medio
+            Vector2 puntoActual = Vector2.Lerp(puntosOriginales[i], puntosTransformados[i], t);
+
+            float posX = centroDelPlano.position.x + puntoActual.x * escalaPlanoX;
+            float posY = centroDelPlano.position.y + puntoActual.y * escalaPlanoY;
+
             lineaTransformada.SetPosition(i, new Vector3(posX, posY, -1f));
         }
-        // Cerramos la figura conectando el último punto con el primero
-        float cierreX = centroDelPlano.position.x + puntosTransformados[0].x * escalaPlanoX;
-        float cierreY = centroDelPlano.position.y + puntosTransformados[0].y * escalaPlanoY;
-        lineaTransformada.SetPosition(puntosTransformados.Count, new Vector3(cierreX, cierreY, -2f));
 
+        // Cerramos la figura (conectamos el último punto con el primero)
+        Vector2 cierre = Vector2.Lerp(puntosOriginales[0], puntosTransformados[0], t);
+        float cX = centroDelPlano.position.x + cierre.x * escalaPlanoX;
+        float cY = centroDelPlano.position.y + cierre.y * escalaPlanoY;
+        lineaTransformada.SetPosition(cantidad, new Vector3(cX, cY, -1f));
     }
+
+    /// <summary>
+    /// Transforma el valor t lineal (0→1) aplicando la curva de easing seleccionada.
+    /// El easing hace que la animación se sienta más natural y menos robótica.
+    /// </summary>
+    private float AplicarEasing(float t)
+    {
+        switch (tipoEasing)
+        {
+            case TipoEasing.Lineal:
+                return t;
+
+            case TipoEasing.SmoothStep:
+                // Suave al inicio y al final — el más natural para figuras geométricas
+                return Mathf.SmoothStep(0f, 1f, t);
+
+            case TipoEasing.EaseIn:
+                // Arranca lento (cuadrático)
+                return t * t;
+
+            case TipoEasing.EaseOut:
+                // Termina lento
+                return 1f - (1f - t) * (1f - t);
+
+            case TipoEasing.Elastico:
+                // Pequeño rebote al llegar — divertido para homotecia
+                if (t == 0f || t == 1f) return t;
+                float p = 0.3f;
+                return Mathf.Pow(2f, -10f * t) * Mathf.Sin((t - p / 4f) * (2f * Mathf.PI) / p) + 1f;
+
+            default:
+                return t;
+        }
+    }
+
+
+    // =====================================================================
+    // DIBUJADO ESTÁTICO
+    // =====================================================================
+
+    public void DibujarFiguraOriginal()
+    {
+        if (puntosOriginales.Count < 2)
+        {
+            Debug.LogWarning("[Transformaciones] Necesitas al menos 2 puntos para dibujar.");
+            return;
+        }
+
+        lineaOriginal.positionCount = puntosOriginales.Count + 1;
+
+        for (int i = 0; i < puntosOriginales.Count; i++)
+        {
+            float posX = centroDelPlano.position.x + puntosOriginales[i].x * escalaPlanoX;
+            float posY = centroDelPlano.position.y + puntosOriginales[i].y * escalaPlanoY;
+            lineaOriginal.SetPosition(i, new Vector3(posX, posY, -1f));
+        }
+
+        // Cierre de la figura
+        float cX = centroDelPlano.position.x + puntosOriginales[0].x * escalaPlanoX;
+        float cY = centroDelPlano.position.y + puntosOriginales[0].y * escalaPlanoY;
+        lineaOriginal.SetPosition(puntosOriginales.Count, new Vector3(cX, cY, -1f));
+    }
+
+    public void DibujarFiguraTransformada()
+    {
+        if (puntosTransformados.Count < 2) return;
+
+        lineaTransformada.positionCount = puntosTransformados.Count + 1;
+
+        for (int i = 0; i < puntosTransformados.Count; i++)
+        {
+            float posX = centroDelPlano.position.x + puntosTransformados[i].x * escalaPlanoX;
+            float posY = centroDelPlano.position.y + puntosTransformados[i].y * escalaPlanoY;
+            lineaTransformada.SetPosition(i, new Vector3(posX, posY, -1f));
+        }
+
+        float cX = centroDelPlano.position.x + puntosTransformados[0].x * escalaPlanoX;
+        float cY = centroDelPlano.position.y + puntosTransformados[0].y * escalaPlanoY;
+        lineaTransformada.SetPosition(puntosTransformados.Count, new Vector3(cX, cY, -1f));
+    }
+
+
+    // =====================================================================
+    // HOMOTECIA — LÍNEAS DE PROYECCIÓN
+    // =====================================================================
+
+    private void DibujarLineasHomotecia(Vector2 puntoHomotecia)
+    {
+        LimpiarLineasProyeccion();
+
+        for (int i = 0; i < puntosOriginales.Count; i++)
+        {
+            if (prefabLineaProyeccion == null)
+            {
+                Debug.LogError("[Homotecia] Falta asignar el prefabLineaProyeccion en el Inspector.");
+                return;
+            }
+
+            GameObject nuevaLinea = Instantiate(prefabLineaProyeccion, transform);
+            LineRenderer lr = nuevaLinea.GetComponent<LineRenderer>();
+            lr.positionCount = 2;
+
+            Vector2 dir = (puntosOriginales[i] - puntoHomotecia).normalized;
+            if (dir == Vector2.zero) { lr.positionCount = 0; continue; }
+
+            Vector2 ext1 = puntoHomotecia - dir * factorExtensionLineasProyeccion;
+            Vector2 ext2 = puntoHomotecia + dir * factorExtensionLineasProyeccion;
+
+            lr.SetPosition(0, new Vector3(
+                centroDelPlano.position.x + ext1.x * escalaPlanoX,
+                centroDelPlano.position.y + ext1.y * escalaPlanoY,
+                -0.5f));
+
+            lr.SetPosition(1, new Vector3(
+                centroDelPlano.position.x + ext2.x * escalaPlanoX,
+                centroDelPlano.position.y + ext2.y * escalaPlanoY,
+                -0.5f));
+
+            _lineasProyeccionInstanciadas.Add(nuevaLinea);
+        }
+    }
+
+    public void LimpiarLineasProyeccion()
+    {
+        foreach (GameObject linea in _lineasProyeccionInstanciadas)
+            Destroy(linea);
+        _lineasProyeccionInstanciadas.Clear();
+    }
+
+
+    // =====================================================================
+    // LIMPIEZA Y REINICIO
+    // =====================================================================
 
     public void LimpiarFigura()
     {
+        DetenerAnimacion();
+        LimpiarLineasProyeccion();
         puntosOriginales.Clear();
         puntosTransformados.Clear();
         lineaOriginal.positionCount = 0;
@@ -225,8 +409,39 @@ public class ControlTransformaciones : MonoBehaviour
 
     public void ReiniciarAFiguraOriginal()
     {
+        DetenerAnimacion();
+        LimpiarLineasProyeccion();
         puntosTransformados.Clear();
         lineaTransformada.positionCount = 0;
     }
 
+    /// <summary>Detiene cualquier animación en curso de forma segura.</summary>
+    private void DetenerAnimacion()
+    {
+        if (_coroutineAnimacion != null)
+        {
+            StopCoroutine(_coroutineAnimacion);
+            _coroutineAnimacion = null;
+        }
+        EstaAnimando = false;
+    }
+
+
+    // =====================================================================
+    // UTILIDADES PRIVADAS
+    // =====================================================================
+
+    private void LeerPunto(TMP_InputField campoX, TMP_InputField campoY)
+    {
+        if (campoX == null || campoY == null) return;
+        if (float.TryParse(campoX.text, out float x) && float.TryParse(campoY.text, out float y))
+            puntosOriginales.Add(new Vector2(x, y));
+    }
+
+    private bool ValidarPuntosMinimos()
+    {
+        if (puntosOriginales.Count >= 2) return true;
+        Debug.LogWarning("[Transformaciones] Ingresa al menos 2 puntos y presiona 'Aplicar Figura' primero.");
+        return false;
+    }
 }
