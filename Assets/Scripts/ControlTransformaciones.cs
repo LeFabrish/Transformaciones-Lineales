@@ -10,6 +10,7 @@ public class ControlTransformaciones : MonoBehaviour
 
     public LineRenderer lineaOriginal;
     public LineRenderer lineaTransformada;
+    public LineRenderer lineaReflexion;  
 
     [Header("Inputs de los Puntos")]
     public TMP_InputField inputP1X; public TMP_InputField inputP1Y;
@@ -173,7 +174,8 @@ public class ControlTransformaciones : MonoBehaviour
             puntosTransformados.Add(new Vector2(xNuevo, yNuevo));
         }
 
-        Debug.Log($"[Transformaciones] Reflejando sobre y = {m}x + {c}.");
+        Debug.Log($"[Transformaciones] Reflejando sobre y = {m}x + {c}."); 
+        DibujarRectaReflexion(m, c);
         IniciarAnimacion();
     }
     
@@ -391,8 +393,31 @@ public class ControlTransformaciones : MonoBehaviour
         foreach (GameObject linea in _lineasProyeccionInstanciadas)
             Destroy(linea);
         _lineasProyeccionInstanciadas.Clear();
+
+        if (lineaReflexion != null) lineaReflexion.positionCount = 0;
     }
 
+    /// <summary>Dibuja la recta y = mx + c como referencia visual de la reflexión.</summary>
+    private void DibujarRectaReflexion(float m, float c)
+    {
+        if (lineaReflexion == null)
+        {
+            Debug.LogError("[Reflexión] Falta asignar lineaReflexion en el Inspector.");
+            return;
+        }
+
+        float ext = factorExtensionLineasProyeccion;
+
+        lineaReflexion.positionCount = 2;
+        lineaReflexion.SetPosition(0, new Vector3(
+            centroDelPlano.position.x + (-ext) * escalaPlanoX,
+            centroDelPlano.position.y + (m * (-ext) + c) * escalaPlanoY,
+            -0.5f));
+        lineaReflexion.SetPosition(1, new Vector3(
+            centroDelPlano.position.x + ext * escalaPlanoX,
+            centroDelPlano.position.y + (m * ext + c) * escalaPlanoY,
+            -0.5f));
+    }
 
     // =====================================================================
     // LIMPIEZA Y REINICIO
